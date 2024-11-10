@@ -1,31 +1,62 @@
 import os
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy import create_engine
 from eralchemy2 import render_er
 
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+class User(Base):
+    __tablename__ = 'user'
+    id = Column(Integer,  primary_key=True)
+    user_name = Column(String, unique=True, nullable=False)
+    firstname = Column(String(30))
+    lastname = Column (String(30))
+    email = Column (String(40), unique=True, nullable=False)
+    comments = relationship ('Comment', back_populates="author_relationship")
+    likes = relationship('Likes', back_populates='user_rel')
+    follows = relationship('Follow', back_populates ='user_rel')
 
-class Address(Base):
-    __tablename__ = 'address'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
+class Post(Base):
+    __tablename__ = 'post'
     id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    post_text =Column(String (300))
+    user_id = Column(Integer, ForeignKey('user.id'), unique=True)
+    user_relationship = relationship('User')
+    likes = relationship('Likes', back_populates='post_rel')
+    
+class Comment(Base):
+    __tablename__ = 'comment'
+    id= Column(Integer, primary_key=True)
+    comment_text = Column (String(200), nullable=False )
+    author_id= Column (Integer, ForeignKey ('user.id'), unique=True)
+    author_relationship = relationship('User', back_populates='comments')
 
-    def to_dict(self):
+class Follow(Base):
+   __tablename__ = 'follows'
+   user_follower_id= Column (Integer, ForeignKey('user.id'))
+   user_following_id = Column (Integer, ForeignKey('user.id'))
+   __table_args__ =  (PrimaryKeyConstraint('user_follower_id', 'user_following_id'),)
+   user_rel = relationship('User', back_populates='follows')
+     
+class Media(Base):
+    __tablename__= 'media'
+    id= Column(Integer, primary_key=True)
+    url= Column(String)
+    post_id = Column (Integer, ForeignKey ('post.id')) 
+    post_relantionship = relationship ('Post')
+
+class Likes (Base):
+     __tablename__ = 'likes'
+     post_id = Column (Integer, ForeignKey('post.id'))
+     user_id = Column (Integer, ForeignKey('user.id'))
+     __table_args__ =  (PrimaryKeyConstraint('post_id', 'user_id'),)
+     user_rel = relationship('User', back_populates='likes')
+     post_rel = relationship('Post', back_populates='likes')
+
+
+def to_dict(self):
         return {}
 
 ## Draw from SQLAlchemy base
