@@ -22,7 +22,7 @@ class Post(Base):
     __tablename__ = 'post'
     id = Column(Integer, primary_key=True)
     post_text =Column(String (300))
-    user_id = Column(Integer, ForeignKey('user.id'), unique=True)
+    user_id = Column(Integer, ForeignKey('user.id'))
     user_relationship = relationship('User')
     likes = relationship('Likes', back_populates='post_rel')
     
@@ -31,14 +31,14 @@ class Comment(Base):
     id= Column(Integer, primary_key=True)
     comment_text = Column (String(200), nullable=False )
     author_id= Column (Integer, ForeignKey ('user.id'), unique=True)
-    author_relationship = relationship('User', back_populates='comments')
+    author_relationship = relationship('User', back_populates='comment')
 
 class Follow(Base):
-   __tablename__ = 'follows'
+   __tablename__ = 'follow'
    user_follower_id= Column (Integer, ForeignKey('user.id'))
    user_following_id = Column (Integer, ForeignKey('user.id'))
    __table_args__ =  (PrimaryKeyConstraint('user_follower_id', 'user_following_id'),)
-   user_rel = relationship('User', back_populates='follows')
+   user_relationship = relationship('User', back_populates='follow')
      
 class Media(Base):
     __tablename__= 'media'
@@ -52,8 +52,8 @@ class Likes (Base):
      post_id = Column (Integer, ForeignKey('post.id'))
      user_id = Column (Integer, ForeignKey('user.id'))
      __table_args__ =  (PrimaryKeyConstraint('post_id', 'user_id'),)
-     user_rel = relationship('User', back_populates='likes')
-     post_rel = relationship('Post', back_populates='likes')
+     user_relationship = relationship('User', back_populates='likes')
+     post_relationship = relationship('Post', back_populates='likes')
 
 
 def to_dict(self):
